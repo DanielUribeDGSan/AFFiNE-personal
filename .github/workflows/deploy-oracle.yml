@@ -1,0 +1,69 @@
+name: Deploy Oracle (affine-uribe)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/oracle/**'
+      - '.github/workflows/deploy-oracle.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'What to deploy'
+        required: true
+        default: css
+        type: choice
+        options:
+          - css
+          - stack
+          - all
+
+concurrency:
+  group: deploy-oracle
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve deploy mode
+        id: mode
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
+          else
+            # Push under deploy/oracle → CSS only (safe).
+            # Docker pull/restart: Actions → Run workflow → stack | all
+            echo "value=css" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup SSH
+        env:
+          ORACLE_SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+          ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+        run: |
+          test -n "$ORACLE_SSH_KEY" || { echo "Missing secret ORACLE_SSH_KEY"; exit 1; }
+          HOST="${ORACLE_HOST:-159.54.149.50}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$ORACLE_SSH_KEY" > ~/.ssh/oracle_deploy
+          chmod 600 ~/.ssh/oracle_deploy
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+          echo "AFFINE_HOST=$HOST" >> "$GITHUB_ENV"
+          echo "SSH_KEY=$HOME/.ssh/oracle_deploy" >> "$GITHUB_ENV"
+          echo "AFFINE_SSH_USER=${{ secrets.ORACLE_SSH_USER }}" >> "$GITHUB_ENV"
+
+      - name: Deploy to Oracle
+        run: |
+          export AFFINE_SSH_USER="${AFFINE_SSH_USER:-ubuntu}"
+          chmod +x deploy/oracle/deploy.sh deploy/oracle/deploy-ui-overrides.sh
+          ./deploy/oracle/deploy.sh "${{ steps.mode.outputs.value }}"
+
+      - name: Smoke check
+        run: |
+          sleep 2
+          curl -fsS -o /dev/null -w "site %{http_code}\n" https://affine-uribe.duckdns.org/
+          curl -fsS -o /dev/null -w "css %{http_code}\n" https://affine-uribe.duckdns.org/custom/affine-ui-overrides.css

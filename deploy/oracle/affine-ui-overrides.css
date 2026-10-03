@@ -1,0 +1,85 @@
+/* Left-aligned full-bleed editor (kill default 944px centered column). */
+
+/* Nuclear: every node must inherit 100% width token (child theme vars otherwise win). */
+*,
+*::before,
+*::after {
+  --affine-editor-width: 100% !important;
+  --affine-editor-side-padding: 24px !important;
+}
+
+html,
+body,
+#app {
+  width: 100% !important;
+}
+
+/* Direct geometry — do not rely only on the CSS variable */
+.editor-wrapper,
+.page-editor,
+.page-editor-container,
+.affine-page-viewport,
+editor-host,
+affine-page-root,
+affine-doc-title,
+.doc-title-container,
+.doc-icon-container,
+.affine-page-root-block-container,
+affine-note,
+.affine-note-block-container,
+[data-testid='page-editor-blank'],
+[class*='docPropertiesTableContainer'],
+[class*='docPropertiesTable'],
+[class*='docEditor'],
+[class*='pageDetailEditor'],
+[class*='editorContainer'] {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-inline: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.affine-page-root-block-container,
+.doc-title-container,
+.doc-icon-container {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+/* Transparent database / kanban chrome */
+affine-database,
+affine-database-title,
+affine-database-column-header,
+affine-data-view-renderer,
+affine-data-view-kanban-card,
+.affine-database-block-container,
+.affine-database-column-header,
+.affine-database-block-row,
+.data-view-table-view-drag-handler,
+[data-view-component='table'],
+[data-block-is-database='true'] {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+affine-data-view-kanban-card {
+  --affine-background-kanban-card-color: transparent !important;
+}
+
+@media screen and (max-width: 800px) {
+  *,
+  *::before,
+  *::after {
+    --affine-editor-side-padding: 16px !important;
+  }
+
+  .affine-page-root-block-container,
+  .doc-title-container,
+  .doc-icon-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
