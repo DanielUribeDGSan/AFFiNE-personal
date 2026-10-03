@@ -382,6 +382,14 @@ export const PeekViewModalContainer = forwardRef<
             ref={overlayRef}
             className={styles.modalOverlay}
             data-anime-state={animeState}
+            onDragOver={(e) => {
+              e.stopPropagation();
+              e.nativeEvent.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.stopPropagation();
+              e.nativeEvent.stopPropagation();
+            }}
           />
           <div
             ref={ref}
@@ -389,6 +397,14 @@ export const PeekViewModalContainer = forwardRef<
             data-peek-view-wrapper
             className={styles.modalContentWrapper}
             data-mobile={BUILD_CONFIG.isMobileEdition ? '' : undefined}
+            onDragOver={(e) => {
+              e.stopPropagation();
+              e.nativeEvent.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.stopPropagation();
+              e.nativeEvent.stopPropagation();
+            }}
           >
             <div
               data-anime-state={animeState}
