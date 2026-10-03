@@ -28,8 +28,12 @@
    | `ORACLE_HOST` | `159.54.149.50` (opcional) |
    | `ORACLE_SSH_USER` | `ubuntu` (opcional) |
 
-2. Push a `main` de archivos bajo `deploy/oracle/**` → Actions corre **`css`**.
+2. **Push a `main`** → Actions corre **`all`** (Docker `affine:stable` + CSS) automáticamente.
 
-3. Para actualizar Docker: **Actions → Deploy Oracle → Run workflow → `stack` o `all`**.
+3. Manual (opcional): **Actions → Deploy Oracle → Run workflow** y elige `css` / `stack` / `all`.
 
 Tras el deploy, hard-refresh del navegador (`Cmd+Shift+R`).
+
+### Qué NO se despliega aún con el push
+
+El código custom del monorepo (React/BlockSuite canary) **no** se sube solo a Oracle: un frontend canary sobre backend stable rompe GraphQL/sync. Lo que sí se actualiza solo es la imagen oficial + tu CSS en `deploy/oracle/`.

@@ -1,22 +1,20 @@
 name: Deploy Oracle (affine-uribe)
 
 on:
+  # Cualquier push a main actualiza Oracle (CSS + imagen Docker stable).
   push:
     branches: [main]
-    paths:
-      - 'deploy/oracle/**'
-      - '.github/workflows/deploy-oracle.yml'
   workflow_dispatch:
     inputs:
       mode:
         description: 'What to deploy'
         required: true
-        default: css
+        default: all
         type: choice
         options:
+          - all
           - css
           - stack
-          - all
 
 concurrency:
   group: deploy-oracle
@@ -25,7 +23,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,9 +34,8 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "value=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
           else
-            # Push under deploy/oracle → CSS only (safe).
-            # Docker pull/restart: Actions → Run workflow → stack | all
-            echo "value=css" >> "$GITHUB_OUTPUT"
+            # Push a main → todo lo seguro en Oracle: Docker stable + CSS.
+            echo "value=all" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup SSH
