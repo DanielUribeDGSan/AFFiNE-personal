@@ -5,7 +5,8 @@ import type { WorkspaceService } from '../../workspace';
 
 const DEFAULT_COLLAPSABLE_STATE: Record<string, boolean> = {
   recent: true,
-  favorites: false,
+  // AppFlowy-style: keep section folders open; collapse secondary lists
+  favorites: true,
   organize: false,
   collections: true,
   tags: true,

@@ -400,12 +400,11 @@ export class AffineToolbarWidget extends WidgetComponent {
     disposables.add(
       std.selection.find$(TextSelection).subscribe(result => {
         const range = std.range.value ?? null;
+        // Show format toolbar whenever the caret is in note text (not only
+        // when a non-empty range is selected). Collapsed caret still needs
+        // Ask AI / heading / link / checklist actions at hand.
         const activated = Boolean(
-          context.activated &&
-          range &&
-          result &&
-          !result.isCollapsed() &&
-          result.from.length + (result.to?.length ?? 0)
+          context.activated && range && result && std.host.contains(range.commonAncestorContainer)
         );
 
         batch(() => {

@@ -11,7 +11,7 @@ import {
 export const styles = css`
     affine-database-column-header {
         display: block;
-        background-color: var(--affine-background-primary-color);
+        background-color: transparent;
         position: relative;
         z-index: 2;
     }
@@ -24,7 +24,7 @@ export const styles = css`
         border-top: 1px solid ${unsafeCSS(cssVarV2.layer.insideBorder.border)};
         box-sizing: border-box;
         user-select: none;
-        background-color: var(--affine-background-primary-color);
+        background-color: transparent;
     }
 
     .affine-database-column {
@@ -179,7 +179,7 @@ export const styles = css`
 
     .header-add-column-button {
         height: ${DEFAULT_COLUMN_TITLE_HEIGHT}px;
-        background-color: var(--affine-background-primary-color);
+        background-color: transparent;
         display: flex;
         align-items: center;
         justify-content: center;

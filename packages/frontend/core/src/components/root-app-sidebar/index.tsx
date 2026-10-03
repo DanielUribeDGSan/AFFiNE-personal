@@ -226,8 +226,9 @@ export const RootAppSidebar = memo((): ReactElement => {
         </MenuItem>
       </SidebarContainer>
       <SidebarScrollableContainer>
-        <NavigationPanelFavorites />
+        {/* AppFlowy-style: folders/sections first, then favorites */}
         <NavigationPanelOrganize />
+        <NavigationPanelFavorites />
         <NavigationPanelMigrationFavorites />
         <NavigationPanelTags />
         <NavigationPanelCollections />

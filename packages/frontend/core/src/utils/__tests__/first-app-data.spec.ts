@@ -13,8 +13,8 @@ vi.mock('@blocksuite/affine/widgets/linked-doc', () => ({
     importDocs,
   },
 }));
-vi.mock('@affine/templates/onboarding.zip', () => ({
-  default: '/onboarding.zip',
+vi.mock('@affine/templates/shift.zip', () => ({
+  default: '/shift.zip',
 }));
 vi.mock('../../modules/doc', () => ({
   DocsService: docsServiceToken,
@@ -28,8 +28,39 @@ vi.mock('../../modules/workspace', () => ({
 
 const originalBuildConfig = globalThis.BUILD_CONFIG;
 
+function createFolderNodeMock() {
+  const children: Array<{ id: string; name: string }> = [];
+  const node = {
+    id: null as string | null,
+    createFolder: vi.fn((name: string) => {
+      const id = `folder-${children.length + 1}-${name}`;
+      children.push({ id, name });
+      return id;
+    }),
+    createLink: vi.fn(),
+    indexAt: vi.fn(() => 'a0'),
+  };
+  return { node, children };
+}
+
 beforeEach(() => {
-  localStorage.clear();
+  const store = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      store.set(key, value);
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    },
+    clear: () => {
+      store.clear();
+    },
+    key: (index: number) => [...store.keys()][index] ?? null,
+    get length() {
+      return store.size;
+    },
+  });
   importDocs.mockReset();
   vi.stubGlobal(
     'fetch',
@@ -64,6 +95,9 @@ function createWorkspacesService({
       })
   );
   const waitForDocReady = vi.fn(async () => {});
+  const root = createFolderNodeMock();
+  const folderNodes = new Map<string, ReturnType<typeof createFolderNodeMock>['node']>();
+
   const create = vi.fn(
     async (
       flavour: string,
@@ -110,10 +144,72 @@ function createWorkspacesService({
                     value: [
                       {
                         id: 'getting-started',
-                        ['title$']: { value: 'Getting Started' },
+                        ['title$']: { value: 'Getting started' },
+                      },
+                      {
+                        id: 'desktop-guide',
+                        ['title$']: { value: 'Desktop guide' },
+                      },
+                      {
+                        id: 'mobile-guide',
+                        ['title$']: { value: 'Mobile guide' },
+                      },
+                      {
+                        id: 'web-guide',
+                        ['title$']: { value: 'Web guide' },
+                      },
+                      {
+                        id: 'tasks',
+                        ['title$']: { value: 'Tasks' },
+                      },
+                      {
+                        id: 'sprints',
+                        ['title$']: { value: 'Sprints' },
+                      },
+                      {
+                        id: 'projects',
+                        ['title$']: { value: 'Projects' },
+                      },
+                      {
+                        id: 'shared',
+                        ['title$']: { value: 'Shared' },
                       },
                     ],
                   },
+                },
+              };
+            }
+            if (token === organizeServiceToken) {
+              return {
+                folderTree: {
+                  rootFolder: {
+                    ...root.node,
+                    createFolder: (name: string, index: string) => {
+                      const id = root.node.createFolder(name, index);
+                      const child = createFolderNodeMock().node;
+                      child.id = id;
+                      folderNodes.set(id, child);
+                      return id;
+                    },
+                  },
+                  folderNode$: (id: string) => ({
+                    get value() {
+                      const existing = folderNodes.get(id);
+                      if (!existing) return null;
+                      // Nested createFolder also registers nodes
+                      const wrapped = {
+                        ...existing,
+                        createFolder: (name: string, index: string) => {
+                          const childId = existing.createFolder(name, index);
+                          const child = createFolderNodeMock().node;
+                          child.id = childId;
+                          folderNodes.set(childId, child);
+                          return childId;
+                        },
+                      };
+                      return wrapped;
+                    },
+                  }),
                 },
               };
             }
@@ -129,6 +225,8 @@ function createWorkspacesService({
     service,
     createMock,
     workspaces,
+    root,
+    folderNodes,
   };
 }
 
@@ -149,7 +247,7 @@ describe('createFirstAppData', () => {
     });
     localStorage.setItem('is-first-open', 'false');
     const { createFirstAppData } = await import('../first-app-data');
-    const { service, createMock } = createWorkspacesService();
+    const { service, createMock, root } = createWorkspacesService();
 
     await expect(createFirstAppData(service as never)).resolves.toMatchObject({
       meta: { id: 'workspace-1', flavour: 'local' },
@@ -157,6 +255,20 @@ describe('createFirstAppData', () => {
     });
     expect(createMock).toHaveBeenCalledOnce();
     expect(localStorage.getItem('is-first-open')).toBe('false');
+    // AppFlowy sections: General, Tasks, Sprints, Projects, Shared
+    expect(root.node.createFolder).toHaveBeenCalled();
+    const folderNames = root.node.createFolder.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    expect(folderNames).toEqual(
+      expect.arrayContaining([
+        'General',
+        'Tasks',
+        'Sprints',
+        'Projects',
+        'Shared',
+      ])
+    );
   });
 
   test('does not create when any workspace already exists', async () => {

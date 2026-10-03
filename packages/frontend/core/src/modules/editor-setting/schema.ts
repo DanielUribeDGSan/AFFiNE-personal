@@ -34,7 +34,7 @@ const AffineEditorSettingSchema = z.object({
     .enum(newDocDateTitleFormatOptions)
     .default('DD-MM-YYYY'),
   displayAddIconOption: z.boolean().default(true),
-  fullWidthLayout: z.boolean().default(false),
+  fullWidthLayout: z.boolean().default(true),
   displayDocInfo: z.boolean().default(true),
   displayBiDirectionalLink: z.boolean().default(true),
   edgelessDefaultTheme: z

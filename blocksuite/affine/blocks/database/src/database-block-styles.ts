@@ -4,7 +4,7 @@ import { cssVarV2 } from '@toeverything/theme/v2';
 export const databaseBlockStyles = css({
   display: 'block',
   borderRadius: '8px',
-  backgroundColor: 'var(--affine-background-primary-color)',
+  backgroundColor: 'transparent',
   padding: '8px',
   margin: '8px -8px -8px',
 });
@@ -68,6 +68,6 @@ export const databaseViewBarContainerStyles = css({
 
 export const databaseContentStyles = css({
   position: 'relative',
-  backgroundColor: 'var(--affine-background-primary-color)',
+  backgroundColor: 'transparent',
   borderRadius: '4px',
 });

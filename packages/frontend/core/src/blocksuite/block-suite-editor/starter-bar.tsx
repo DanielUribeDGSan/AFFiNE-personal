@@ -13,11 +13,21 @@ import {
 } from '@affine/core/modules/template-doc/view/template-list-menu';
 import { useI18n } from '@affine/i18n';
 import track from '@affine/track';
+import { insertEmptyEmbedIframeCommand } from '@blocksuite/affine-block-embed';
+import { insertImagesCommand } from '@blocksuite/affine-block-image';
+import { updateBlockType } from '@blocksuite/affine/blocks/note';
 import { PageRootBlockComponent } from '@blocksuite/affine/blocks/root';
+import { toggleLink } from '@blocksuite/affine/inlines/link';
+import { getSelectedModelsCommand } from '@blocksuite/affine/shared/commands';
 import type { Store } from '@blocksuite/affine/store';
 import {
   AiIcon,
+  CheckBoxCheckLinearIcon,
   EdgelessIcon,
+  EmbedWebIcon,
+  Heading1Icon,
+  ImageIcon,
+  LinkIcon,
   TemplateColoredIcon,
 } from '@blocksuite/icons/rc';
 import { useLiveData, useService } from '@toeverything/infra';
@@ -54,6 +64,19 @@ const Badge = forwardRef<
     </li>
   );
 });
+
+function focusFirstParagraph(editorService: EditorService) {
+  const std = editorService.editor.editorContainer$.value?.std;
+  if (!std) return null;
+
+  const rootBlockId = std.host.store.root?.id;
+  if (!rootBlockId) return null;
+
+  const rootComponent = std.view.getBlock(rootBlockId);
+  if (!(rootComponent instanceof PageRootBlockComponent)) return null;
+
+  return { std, ...rootComponent.focusFirstParagraph() };
+}
 
 const StarterBarNotEmpty = ({ doc }: { doc: Store }) => {
   const t = useI18n();
@@ -92,16 +115,9 @@ const StarterBarNotEmpty = ({ doc }: { doc: Store }) => {
   }, []);
 
   const startWithAI = useCallback(() => {
-    const std = editorService.editor.editorContainer$.value?.std;
-    if (!std) return;
-
-    const rootBlockId = std.host.store.root?.id;
-    if (!rootBlockId) return;
-
-    const rootComponent = std.view.getBlock(rootBlockId);
-    if (!(rootComponent instanceof PageRootBlockComponent)) return;
-
-    const { id, created } = rootComponent.focusFirstParagraph();
+    const focused = focusFirstParagraph(editorService);
+    if (!focused) return;
+    const { std, id, created } = focused;
     if (created) {
       const subscription = std.view.viewUpdated.subscribe(v => {
         if (v.id === id) {
@@ -112,18 +128,92 @@ const StarterBarNotEmpty = ({ doc }: { doc: Store }) => {
     } else {
       handleInlineAskAIAction(std.host, pageAIGroups);
     }
-  }, [editorService.editor]);
+  }, [editorService]);
+
+  const startWithHeading = useCallback(() => {
+    const focused = focusFirstParagraph(editorService);
+    if (!focused) return;
+    focused.std.command.exec(updateBlockType, {
+      flavour: 'affine:paragraph',
+      props: { type: 'h1' },
+    });
+  }, [editorService]);
+
+  const startWithChecklist = useCallback(() => {
+    const focused = focusFirstParagraph(editorService);
+    if (!focused) return;
+    focused.std.command.exec(updateBlockType, {
+      flavour: 'affine:list',
+      props: { type: 'todo' },
+    });
+  }, [editorService]);
+
+  const startWithLink = useCallback(() => {
+    const focused = focusFirstParagraph(editorService);
+    if (!focused) return;
+    focused.std.command.exec(toggleLink);
+  }, [editorService]);
+
+  const startWithImage = useCallback(() => {
+    const focused = focusFirstParagraph(editorService);
+    if (!focused) return;
+    focused.std.command
+      .chain()
+      .pipe(getSelectedModelsCommand)
+      .pipe(insertImagesCommand, { removeEmptyLine: true })
+      .run();
+  }, [editorService]);
+
+  const startWithVideo = useCallback(() => {
+    const focused = focusFirstParagraph(editorService);
+    if (!focused) return;
+    focused.std.command
+      .chain()
+      .pipe(getSelectedModelsCommand)
+      .pipe(insertEmptyEmbedIframeCommand, {
+        place: 'after',
+        removeEmptyLine: true,
+      })
+      .run();
+  }, [editorService]);
 
   const showTemplate = !isTemplate;
-
-  if (!enableAI && !showTemplate) {
-    return null;
-  }
 
   return (
     <div className={styles.root} data-testid="starter-bar">
       {t['com.affine.page-starter-bar.start']()}
       <ul className={styles.badges}>
+        <Badge
+          data-testid="start-with-heading-badge"
+          icon={<Heading1Icon />}
+          text={t['com.affine.page-starter-bar.heading']()}
+          onClick={startWithHeading}
+        />
+        <Badge
+          data-testid="start-with-checklist-badge"
+          icon={<CheckBoxCheckLinearIcon />}
+          text={t['com.affine.page-starter-bar.checklist']()}
+          onClick={startWithChecklist}
+        />
+        <Badge
+          data-testid="start-with-image-badge"
+          icon={<ImageIcon />}
+          text={t['com.affine.page-starter-bar.image']()}
+          onClick={startWithImage}
+        />
+        <Badge
+          data-testid="start-with-video-badge"
+          icon={<EmbedWebIcon />}
+          text={t['com.affine.page-starter-bar.video']()}
+          onClick={startWithVideo}
+        />
+        <Badge
+          data-testid="start-with-link-badge"
+          icon={<LinkIcon />}
+          text={t['com.affine.page-starter-bar.link']()}
+          onClick={startWithLink}
+        />
+
         {enableAI ? (
           <Badge
             data-testid="start-with-ai-badge"

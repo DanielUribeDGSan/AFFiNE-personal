@@ -365,18 +365,19 @@ export class MobileShellDataProjection extends Service {
     const tags = get(this.tags.tagList.tags$).map(tag => tagNode(tag.id));
 
     return [
-      {
-        id: 'favorites',
-        children: [
-          ...favorites,
-          { kind: 'action', entityId: 'favorites', action: 'section' },
-        ],
-      },
+      // AppFlowy-style: section folders first
       {
         id: 'organize',
         children: [
           ...folders,
           { kind: 'action', entityId: 'organize', action: 'section' },
+        ],
+      },
+      {
+        id: 'favorites',
+        children: [
+          ...favorites,
+          { kind: 'action', entityId: 'favorites', action: 'section' },
         ],
       },
       {

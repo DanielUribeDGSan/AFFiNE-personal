@@ -879,7 +879,7 @@ export const MobileNavigationVirtualScroller = () => {
             return (
               <div
                 className={styles.section}
-                data-first-section={section === 'favorites'}
+                data-first-section={section === 'organize'}
                 data-navigation-row-id={row.id}
                 data-collapsible
                 data-collapsed={!row.expanded}

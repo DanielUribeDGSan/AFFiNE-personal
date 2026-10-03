@@ -7,7 +7,8 @@ export const root = style({
 
 export const editor = style({
   vars: {
-    '--affine-editor-side-padding': '96px',
+    '--affine-editor-width': '100%',
+    '--affine-editor-side-padding': '24px',
   },
   minHeight: '100%',
 });
@@ -15,7 +16,7 @@ export const editor = style({
 globalStyle(`[data-full-width-layout="true"] ${editor}`, {
   vars: {
     '--affine-editor-width': '100%',
-    '--affine-editor-side-padding': '72px',
+    '--affine-editor-side-padding': '24px',
   },
 });
 

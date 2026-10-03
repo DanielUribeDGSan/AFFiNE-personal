@@ -7,7 +7,7 @@ export const leftBar = css({
 });
 
 export const dragHandlerWrapper = css({
-  backgroundColor: cssVarV2.layer.background.primary,
+  backgroundColor: 'transparent',
   marginBottom: '1px',
   display: 'flex',
 });
@@ -18,12 +18,12 @@ export const dragHandler = css({
   alignItems: 'center',
   justifyContent: 'center',
   cursor: 'grab',
-  backgroundColor: 'var(--affine-background-primary-color)',
+  backgroundColor: 'transparent',
   opacity: 0,
 });
 
 export const checkboxWrapper = css({
-  backgroundColor: cssVarV2.layer.background.primary,
+  backgroundColor: 'transparent',
   marginBottom: '1px',
   display: 'flex',
 });

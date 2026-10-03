@@ -20,10 +20,10 @@ const styles = css`
     position: relative;
     flex-direction: column;
     border: 1px solid ${unsafeCSS(cssVarV2.layer.insideBorder.border)};
-    box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
     border-radius: 8px;
     transition: background-color 100ms ease-in-out;
-    background-color: var(--affine-background-kanban-card-color);
+    background-color: transparent;
   }
 
   affine-data-view-kanban-card:hover {

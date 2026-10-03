@@ -1,85 +1,246 @@
-/* Left-aligned full-bleed editor (kill default 944px centered column). */
+/*
+ * Title centered.
+ * Body/table use the full content pane from the left (no 944px column).
+ * Must beat AFFiNE's:
+ *   ._1n876y33 > :first-child:has(> [data-affine-editor-container]) { display:table !important }
+ */
 
-/* Nuclear: every node must inherit 100% width token (child theme vars otherwise win). */
-*,
-*::before,
-*::after {
-  --affine-editor-width: 100% !important;
-  --affine-editor-side-padding: 24px !important;
-}
-
+:root,
 html,
 body,
 #app {
-  width: 100% !important;
+  --affine-editor-width: 100% !important;
+  --affine-editor-side-padding: 32px !important;
 }
 
-/* Direct geometry — do not rely only on the CSS variable */
-.editor-wrapper,
-.page-editor,
-.page-editor-container,
 .affine-page-viewport,
+.editor-wrapper,
+.editor-wrapper.page-mode,
+page-editor,
+.page-editor-container,
 editor-host,
-affine-page-root,
-affine-doc-title,
-.doc-title-container,
-.doc-icon-container,
-.affine-page-root-block-container,
-affine-note,
-.affine-note-block-container,
-[data-testid='page-editor-blank'],
-[class*='docPropertiesTableContainer'],
-[class*='docPropertiesTable'],
-[class*='docEditor'],
-[class*='pageDetailEditor'],
-[class*='editorContainer'] {
+affine-page-root {
+  --affine-editor-width: 100% !important;
+  --affine-editor-side-padding: 32px !important;
+  width: 100% !important;
   max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/*
+ * Higher specificity than AFFiNE's display:table !important rule.
+ * Without this, the table's intrinsic width expands the whole page.
+ */
+html body .affine-page-viewport > div:first-child,
+html body .affine-page-viewport > div:first-child:has(> .editor-wrapper),
+html body .affine-page-viewport > div:first-child:has(> [data-affine-editor-container]),
+html body [class] > :first-child:has(> [data-affine-editor-container]),
+html body [class] > :first-child:has(> .editor-wrapper) {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.editor-wrapper,
+.editor-wrapper.page-mode {
+  overflow-x: hidden !important;
+}
+
+.affine-page-root-block-container {
+  --affine-editor-width: 100% !important;
+  max-width: none !important;
   width: 100% !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
   margin-inline: 0 !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
   box-sizing: border-box !important;
 }
 
-.affine-page-root-block-container,
-.doc-title-container,
-.doc-icon-container {
-  padding-left: 24px !important;
-  padding-right: 24px !important;
+/* Title stays centered (user preference) */
+html body .doc-title-container,
+html body .doc-icon-container,
+html body affine-doc-title {
+  max-width: 720px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
-/* Transparent database / kanban chrome */
-affine-database,
-affine-database-title,
-affine-database-column-header,
-affine-data-view-renderer,
-affine-data-view-kanban-card,
-.affine-database-block-container,
-.affine-database-column-header,
-.affine-database-block-row,
-.data-view-table-view-drag-handler,
-[data-view-component='table'],
-[data-block-is-database='true'] {
+/* Database fills the content pane; scroll stays inside the table */
+html body affine-database,
+html body affine-database-title,
+html body affine-data-view-renderer,
+html body .affine-database-block-container,
+html body [data-block-is-database='true'] {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   background: transparent !important;
   background-color: transparent !important;
   box-shadow: none !important;
+  box-sizing: border-box !important;
 }
 
-affine-data-view-kanban-card {
+html body affine-data-view-kanban-card {
   --affine-background-kanban-card-color: transparent !important;
+  background: transparent !important;
+}
+
+html body affine-database-column-header,
+html body .affine-database-column-header,
+html body .header-add-column-button,
+html body .data-view-table-view-drag-handler {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+html body [class*='docPropertiesTableContainer'] {
+  justify-content: flex-start !important;
+}
+html body [class*='docPropertiesTable'] {
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html body affine-data-view-record-detail,
+html body database-datasource-note-renderer {
+  --affine-editor-width: 100% !important;
+}
+
+/* Make empty-editor placeholder easier to see in dark theme */
+html body .affine-paragraph-placeholder,
+html body .affine-block-placeholder,
+html body [data-placeholder] {
+  opacity: 0.7 !important;
+  color: var(--affine-text-disable-color, #9c9c9c) !important;
+}
+
+/* Persistent format/insert bar above Type '/' / Start chips */
+#affine-shift-insert-bar {
+  display: flex;
+  width: 100%;
+  max-width: var(--affine-editor-width, 100%);
+  margin: 0 0 10px;
+  box-sizing: border-box;
+}
+#affine-shift-insert-bar .shift-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--affine-background-overlay-panel-color, rgba(50, 50, 50, 0.95));
+  border: 1px solid var(--affine-border-color, rgba(255, 255, 255, 0.12));
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+#affine-shift-insert-bar .shift-bar-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: rgba(255, 255, 255, 0.16);
+}
+#affine-shift-insert-bar button {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 10px;
+  min-width: 32px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--affine-text-primary-color, #e8e8e8);
+  background: transparent;
+}
+#affine-shift-insert-bar button:hover {
+  background: var(--affine-hover-color, rgba(255, 255, 255, 0.12));
+}
+
+/* Drag & drop images onto the page editor */
+html.shift-image-drop-active .affine-page-viewport,
+html.shift-image-drop-active editor-host,
+html.shift-image-drop-active .affine-page-root-block-container {
+  outline: 2px dashed var(--affine-primary-color, #1e96eb) !important;
+  outline-offset: -8px;
+  background-image: linear-gradient(
+    180deg,
+    rgba(30, 150, 235, 0.08),
+    transparent 40%
+  ) !important;
 }
 
 @media screen and (max-width: 800px) {
-  *,
-  *::before,
-  *::after {
+  :root,
+  .affine-page-root-block-container {
     --affine-editor-side-padding: 16px !important;
   }
-
-  .affine-page-root-block-container,
-  .doc-title-container,
-  .doc-icon-container {
+  .affine-page-root-block-container {
     padding-left: 16px !important;
     padding-right: 16px !important;
   }
+}
+
+/* Theme toggle (share + in-app document views) */
+#affine-shift-theme-toggle {
+  position: fixed;
+  z-index: 2147483000;
+  right: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--affine-border-color, rgba(0, 0, 0, 0.12));
+  background: var(--affine-white, #fff);
+  color: var(--affine-text-primary-color, #121212);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  font: 600 12px/1 system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  user-select: none;
+}
+html[data-theme='dark'] #affine-shift-theme-toggle {
+  background: #2a2a2a;
+  color: #f3f3f3;
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+#affine-shift-theme-toggle:hover {
+  filter: brightness(1.05);
+}
+#affine-shift-theme-toggle svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+/*
+ * If the editor shell lags behind html[data-theme=light], body text stays
+ * gray-on-white. Remap ink tokens only for that mismatch.
+ */
+html[data-theme='light'] .page-editor-container[data-theme='dark'],
+html[data-theme='light'] .page-editor-container[data-theme='dark'] affine-note,
+html[data-theme='light'] .page-editor-container[data-theme='dark'] affine-paragraph,
+html[data-theme='light'] .page-editor-container[data-theme='dark'] affine-list {
+  --affine-text-primary-color: #121212;
+  --affine-text-secondary-color: #5c5b60;
+  --affine-background-primary-color: #fff;
+  color: #121212;
+}
+
+/* Hide AFFiNE download / open-in-app marketing chrome */
+[data-testid='open-in-app-card'],
+a[href='https://affine.pro/download'],
+a[href^='https://affine.pro/download?'],
+a[href^='https://affine.pro/download/'] {
+  display: none !important;
 }

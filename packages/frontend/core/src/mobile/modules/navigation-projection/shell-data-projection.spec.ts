@@ -122,8 +122,8 @@ describe('MobileShellDataProjection', () => {
         section.children.at(-1)
       )
     ).toEqual([
-      { kind: 'action', entityId: 'favorites', action: 'section' },
       { kind: 'action', entityId: 'organize', action: 'section' },
+      { kind: 'action', entityId: 'favorites', action: 'section' },
       { kind: 'action', entityId: 'collections', action: 'section' },
       { kind: 'action', entityId: 'tags', action: 'section' },
     ]);
@@ -163,7 +163,7 @@ describe('MobileShellDataProjection', () => {
     expect(entryB$.value?.title).toBe('B2');
     expect(sectionsChanged).not.toHaveBeenCalled();
     favorites$.next([{ type: 'folder', id: 'missing' }]);
-    expect(projection.navigationSections$.value[0].children).toEqual([
+    expect(projection.navigationSections$.value[1].children).toEqual([
       { kind: 'action', entityId: 'favorites', action: 'section' },
     ]);
     favorites$.next([{ type: 'doc', id: 'b' }]);
@@ -177,14 +177,14 @@ describe('MobileShellDataProjection', () => {
     await Promise.resolve();
     refs$.next(new Map([['a', [{ docId: 'b', title: 'B' }]]]));
     expect(
-      projection.navigationSections$.value[0].children[0].children
+      projection.navigationSections$.value[1].children[0].children
     ).toHaveLength(2);
     expect(
-      projection.navigationSections$.value[0].children[0].children?.at(-1)
+      projection.navigationSections$.value[1].children[0].children?.at(-1)
     ).toMatchObject({ kind: 'action', action: 'doc-new-linked' });
     permissionA$.next(false);
     expect(
-      projection.navigationSections$.value[0].children[0].children ?? []
+      projection.navigationSections$.value[1].children[0].children ?? []
     ).toHaveLength(1);
     releaseDoc.mockClear();
     releaseIndexer.mockClear();
@@ -210,7 +210,7 @@ describe('MobileShellDataProjection', () => {
     const largeIds = Array.from({ length: 600 }, (_, index) => `f-${index}`);
     nonTrashIds$.next(largeIds);
     favorites$.next(largeIds.map(id => ({ type: 'doc', id })));
-    expect(projection.navigationSections$.value[0].children).toHaveLength(601);
+    expect(projection.navigationSections$.value[1].children).toHaveLength(601);
     expect(docById$).not.toHaveBeenCalled();
     expect(can$).not.toHaveBeenCalled();
     refsSubscription.unsubscribe();

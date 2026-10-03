@@ -1,5 +1,7 @@
 # Deploy Oracle (`affine-uribe.duckdns.org`)
 
+**Para IAs / agentes:** lee [`AI.md`](./AI.md) (cómo funciona, qué subir, qué reiniciar).
+
 ## Qué se despliega
 
 | Modo | Qué hace | Seguro |

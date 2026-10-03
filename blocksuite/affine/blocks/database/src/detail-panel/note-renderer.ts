@@ -12,7 +12,7 @@ import { createDefaultDoc, matchModels } from '@blocksuite/affine-shared/utils';
 import type { DetailSlotProps, SingleView } from '@blocksuite/data-view';
 import { SignalWatcher, WithDisposable } from '@blocksuite/global/lit';
 import { type EditorHost, ShadowlessElement } from '@blocksuite/std';
-import type { BaseTextAttributes } from '@blocksuite/store';
+import { Text, type BaseTextAttributes } from '@blocksuite/store';
 import { computed } from '@preact/signals-core';
 import { cssVarV2 } from '@toeverything/theme/v2';
 import { css, html, unsafeCSS } from 'lit';
@@ -70,15 +70,29 @@ export class NoteRenderer
       collection.meta.setDocMeta(note.id, { title: rowContent });
       if (note.root) {
         (note.root as RootBlockModel).props.title.insert(rowContent ?? '', 0);
-        note.root.children
-          .find(child => child.flavour === 'affine:note')
-          ?.children.find(block =>
-            matchModels(block, [
-              ParagraphBlockModel,
-              ListBlockModel,
-              CodeBlockModel,
-            ])
+        const noteBlock = note.root.children.find(
+          child => child.flavour === 'affine:note'
+        );
+        const firstBlock = noteBlock?.children.find(block =>
+          matchModels(block, [
+            ParagraphBlockModel,
+            ListBlockModel,
+            CodeBlockModel,
+          ])
+        );
+        // Seed a checklist so the task detail opens ready to capture notes.
+        if (noteBlock && firstBlock) {
+          note.addBlock(
+            'affine:list',
+            { type: 'todo', text: new Text('') },
+            noteBlock.id,
+            0
           );
+          // keep trailing empty paragraph for free-form notes
+          if (firstBlock.flavour !== 'affine:paragraph') {
+            note.addBlock('affine:paragraph', {}, noteBlock.id);
+          }
+        }
       }
       // Track when a linked doc is created in database title column
       this.host.std.getOptional(TelemetryProvider)?.track('LinkedDocCreated', {
@@ -101,14 +115,22 @@ export class NoteRenderer
     `;
   }
 
+  override firstUpdated() {
+    // Auto-open a linked doc so the rich-text editor (and format bar) is ready
+    // immediately when creating/opening a database record in center peek.
+    if (this.allowCreateDoc$.value) {
+      this.addNote();
+    }
+  }
+
   renderNote() {
     if (this.allowCreateDoc$.value) {
       return html` <div>
         <div
           @click="${this.addNote}"
-          style="max-width: var(--affine-editor-width);margin: auto;cursor: pointer;color: var(--affine-text-disable-color)"
+          style="max-width: var(--affine-editor-width);margin: 0;cursor: pointer;color: var(--affine-text-disable-color)"
         >
-          Click to create a linked doc in center peek.
+          Creating editor…
         </div>
       </div>`;
     }

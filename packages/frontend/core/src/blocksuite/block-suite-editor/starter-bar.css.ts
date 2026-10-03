@@ -20,6 +20,7 @@ export const root = style([
 
 export const badges = style({
   display: 'flex',
+  flexWrap: 'wrap',
   gap: 12,
   alignItems: 'center',
 });

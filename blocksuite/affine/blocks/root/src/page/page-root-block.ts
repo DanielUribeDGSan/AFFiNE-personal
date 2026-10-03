@@ -73,7 +73,7 @@ export class PageRootBlockComponent extends BlockComponent<RootBlockModel> {
       color: var(--affine-text-primary-color);
       font-weight: 400;
       max-width: var(--affine-editor-width);
-      margin: 0 auto;
+      margin: 0;
 
       /* Leave a place for drag-handle */
       /* Do not use prettier format this style, or it will be broken */

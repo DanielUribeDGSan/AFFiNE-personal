@@ -34,8 +34,8 @@ export class DocTitle extends WithDisposable(ShadowlessElement) {
       border: 0;
       width: 100%;
       max-width: var(--affine-editor-width);
-      margin-left: auto;
-      margin-right: auto;
+      margin-left: 0;
+      margin-right: 0;
       padding: 38px 0;
 
       padding-left: var(
